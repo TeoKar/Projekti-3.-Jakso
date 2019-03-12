@@ -51,6 +51,13 @@ function naytaLista(sode) {
     }
 }
 
+fetch('/2').then(function (response) {
+    return response.json();
+}).then(function (json) {
+    console.log(json);
+    naytaIlma(json);
+});
+
 let timer1 = setInterval(() =>
     fetch('/l').then(function (response) {
         return response.json();
