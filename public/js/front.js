@@ -1,8 +1,12 @@
 'use strict';
 const sodexo = document.querySelector('#sodexo');
-const node = document.querySelector('#hsl');
+const hsl = document.querySelector('#hsl');
+const air = document.querySelector("#air");
 const body = document.querySelector("body");
 
+
+
+//********************HSL TIETOJEN HAKU**********************************
 
 fetch('/l').then(function (response) {
     return response.json();
@@ -28,6 +32,9 @@ function hslFu(hslLista) {
     }
 }
 
+
+//*************************RUOKALISTAN HAKU****************************
+
 fetch('/i').then(function (response) {
     return response.json();
 }).then(function (json) {
@@ -51,12 +58,47 @@ function naytaLista(sode) {
     }
 }
 
+//************************ILMA HAKU***********************************
+
 fetch('/2').then(function (response) {
     return response.json();
 }).then(function (json) {
-    console.log(json);
-    naytaIlma(json);
 });
+
+fetch('/2').then(function (response) {
+    return response.json();
+}).then(function (json) {
+    naytaIlma(json);
+
+    function naytaIlma(ilma) {
+        JSON.stringify(ilma);
+        try {
+            air.innerHTML = "";
+        } catch (err) {
+            console.log(err);
+        }
+        air.innerText = "ILMAN LAATU";
+        console.log(ilma);
+        for (let z = 0; z < 3;) {
+            const alue = ilma.results[z].city;
+            const latitude = ilma.results[z].coordinates.latitude;
+            const longitude = ilma.results[z].coordinates.longitude;
+            const parameter = ilma.results[z].parameter;
+            const yksikko = ilma.results[z].unit;
+            const maara = ilma.results[z].value;
+
+            const d = document.createElement('div');
+            d.classList.add("air");
+            d.innerHTML = alue + " " + latitude + " " + longitude + " " + parameter + " " + yksikko + " " + maara;
+
+            air.appendChild(d);
+            z++;
+        }
+    }
+});
+
+
+//*********************HSL TIETOJEN PÄIVITYS*******************************************
 
 let timer1 = setInterval(() =>
     fetch('/l').then(function (response) {
@@ -66,11 +108,12 @@ let timer1 = setInterval(() =>
 
 function hslFu1(hslLista) {
     try {
-        node.innerHTML = "";
+        hsl.innerHTML = "";
         console.log("clear");
     } catch (err) {
         console.log(err);
     }
+    hsl.innerText = "HSL AIKATAULU PYSÄKILLÄ LEIRITIE V1501";
     console.log(hslLista);
     for (let y = 0; y < 5;) {
         const pysakki = hslLista.data.stop.name;
@@ -88,8 +131,10 @@ function hslFu1(hslLista) {
         y++;
     }
 }
-}), 10000);
+}), 20000);
 
+
+//**********************RUOKALISTAN PÄIVITYS*************************************
 
 let timer2 = setInterval(() =>
     fetch('/i').then(function (response) {
@@ -104,6 +149,7 @@ let timer2 = setInterval(() =>
             } catch (err) {
                 console.log(err);
             }
+            sodexo.innerText = "MYYRMÄEN RUOKALISTA";
             console.log(sode);
             for (let x = 0; x < 8;) {
                 const hinta = sode.courses[x].price;
@@ -116,6 +162,40 @@ let timer2 = setInterval(() =>
 
                 sodexo.appendChild(d);
                 x++;
+            }
+        }
+    }), 600000);
+
+//***********************ILMAN PÄIVITYS**********************************************
+
+let timer3 = setInterval(() =>
+    fetch('/2').then(function (response) {
+        return response.json();
+    }).then(function (json) {
+        naytaIlma(json);
+
+        function naytaIlma(ilma) {
+            JSON.stringify(ilma);
+            try {
+                air.innerHTML = "";
+            } catch (err) {
+                console.log(err);
+            }
+            console.log(ilma);
+            for (let z = 0; z < 3;) {
+                const alue = ilma.results[z].city;
+                const latitude = ilma.results[z].coordinates.latitude;
+                const longitude = ilma.results[z].coordinates.longitude;
+                const parameter = ilma.results[z].parameter;
+                const yksikko = ilma.results[z].unit;
+                const maara = ilma.results[z].value;
+
+                const d = document.createElement('div');
+                d.classList.add("air");
+                d.innerHTML = alue + " " + latitude + " " + longitude + " " + parameter + " " + yksikko + " " + maara;
+
+                air.appendChild(d);
+                z++;
             }
         }
     }), 600000);
