@@ -2,32 +2,53 @@
 const sodexo = document.querySelector('#sodexo');
 const hsl = document.querySelector('#hsl');
 const air = document.querySelector("#air");
+const otsikko = document.querySelector("#otsikko");
 const body = document.querySelector("body");
-
 
 
 //********************HSL TIETOJEN HAKU**********************************
 
-fetch('/l').then(function (response) {
+fetch('/l')
+.then(function (response) {
     return response.json();
 }).then(function (json) {
-    hslFu(json);
+    hslFu1(json);
 });
 
-function hslFu(hslLista) {
-    console.log(hslLista);
+function hslFu1(hslLista1) {
+    console.log(hslLista1);
     for (let y = 0; y < 5;) {
-        const pysakki = hslLista.data.stop.name;
-        const saapuminen = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeArrival;
-        const lahto = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeDeparture;
-        const reitti = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.longName;
-        const lyhytNimi = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.shortName;
-        const oikeaAika = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeState;
-        const d = document.createElement('div');
-        d.classList.add("HSL");
-        d.innerHTML = pysakki + " " + reitti + " " + lyhytNimi + " " + saapuminen + " " + lahto + " " + oikeaAika;
+        const pysakki = hslLista1.data.stop.name;
+        const saapuminen = hslLista1.data.stop.stoptimesWithoutPatterns[y].realtimeArrival;
+        const lahto = hslLista1.data.stop.stoptimesWithoutPatterns[y].realtimeDeparture;
+        const reitti = hslLista1.data.stop.stoptimesWithoutPatterns[y].trip.route.longName;
+        const lyhytNimi = hslLista1.data.stop.stoptimesWithoutPatterns[y].trip.route.shortName;
+        const oikeaAika = hslLista1.data.stop.stoptimesWithoutPatterns[y].realtimeState;
 
-        hsl.appendChild(d);
+        let arrivalTime = new Date();
+        let arrivalTimeInMs = saapuminen * 1000;
+        arrivalTime.setTime(arrivalTimeInMs);
+        console.log(arrivalTime);
+        let saapumisaika = arrivalTime.getHours() - 2 + ":" + arrivalTime.getMinutes();
+        console.log(saapumisaika);
+
+        let departureTime = new Date();
+        let departureTimeInMs = lahto * 1000;
+        departureTime.setTime(departureTimeInMs);
+        let lahtoaika = departureTime.getHours() - 2 + ":" + departureTime.getMinutes();
+        console.log(lahtoaika);
+
+        const d = document.createElement('div');
+        const h = document.createElement('header');
+
+        h.classList.add("pieniotsikko");
+        d.classList.add("HSL");
+
+        h.innerHTML = lyhytNimi + " " + reitti;
+        d.innerHTML = "SAAPUU: " + saapumisaika + " LÄHTEE: " + lahtoaika + "  REALTIME: " + oikeaAika;
+
+        h.appendChild(d);
+        hsl.appendChild(h);
         y++;
     }
 }
@@ -51,7 +72,7 @@ function naytaLista(sode) {
 
         const d = document.createElement('div');
         d.classList.add("sodexo");
-        d.innerHTML = hinta + nimi + prop;
+        d.innerHTML = hinta + " " + nimi + " " + prop;
 
         sodexo.appendChild(d);
         x++;
@@ -59,11 +80,6 @@ function naytaLista(sode) {
 }
 
 //************************ILMA HAKU***********************************
-
-fetch('/2').then(function (response) {
-    return response.json();
-}).then(function (json) {
-});
 
 fetch('/2').then(function (response) {
     return response.json();
@@ -77,7 +93,6 @@ fetch('/2').then(function (response) {
         } catch (err) {
             console.log(err);
         }
-        air.innerText = "ILMAN LAATU";
         console.log(ilma);
         for (let z = 0; z < 3;) {
             const alue = ilma.results[z].city;
@@ -89,7 +104,7 @@ fetch('/2').then(function (response) {
 
             const d = document.createElement('div');
             d.classList.add("air");
-            d.innerHTML = alue + " " + latitude + " " + longitude + " " + parameter + " " + yksikko + " " + maara;
+            d.innerHTML =" LATITUDE: " + latitude + " LONGITUDE: " + longitude + " PARAMETRIT: " + parameter + " " + yksikko + " " + maara;
 
             air.appendChild(d);
             z++;
@@ -103,35 +118,56 @@ fetch('/2').then(function (response) {
 let timer1 = setInterval(() =>
     fetch('/l').then(function (response) {
         return response.json();
-    }).then(function (json) {
-        hslFu1(json);
+    }).then(function (json1) {
+        hslFu1(json1);
 
-function hslFu1(hslLista) {
-    try {
-        hsl.innerHTML = "";
-        console.log("clear");
-    } catch (err) {
-        console.log(err);
-    }
-    hsl.innerText = "HSL AIKATAULU PYSÄKILLÄ LEIRITIE V1501";
-    console.log(hslLista);
-    for (let y = 0; y < 5;) {
-        const pysakki = hslLista.data.stop.name;
-        const saapuminen = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeArrival;
-        const lahto = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeDeparture;
-        const reitti = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.longName;
-        const lyhytNimi = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.shortName;
-        const oikeaAika = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeState;
+        function hslFu1(hslLista) {
+            console.log(hslLista);
+            try {
+                hsl.innerHTML = "";
+                console.log("clear");
+            } catch (err) {
+                console.log(err);
+            }
+            const d = document.createElement('div');
+            d.id = "otsikko";
+            d.innerText = "HSL AIKATAULU PYSÄKILLÄ LEIRITIE V1501";
+            hsl.appendChild(d);
+            for (let y = 0; y < 5;) {
+                const pysakki1 = hslLista.data.stop.name;
+                const saapuminen1 = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeArrival;
+                const lahto1 = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeDeparture;
+                const reitti1 = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.longName;
+                const lyhytNimi1 = hslLista.data.stop.stoptimesWithoutPatterns[y].trip.route.shortName;
+                const oikeaAika1 = hslLista.data.stop.stoptimesWithoutPatterns[y].realtimeState;
 
-        const d = document.createElement('div');
-        d.classList.add("HSL");
-        d.innerHTML = pysakki + " " + reitti + " " + lyhytNimi + " " + saapuminen + " " + lahto + " " + oikeaAika;
+                let arrivalTime = new Date();
+                let arrivalTimeInMs = saapuminen1 * 1000;
+                arrivalTime.setTime(arrivalTimeInMs);
+                let saapumisaika = arrivalTime.getHours() - 2 + ":" + arrivalTime.getMinutes();
 
-        hsl.appendChild(d);
-        y++;
-    }
-}
-}), 20000);
+
+                let departureTime = new Date();
+                let departureTimeInMs = lahto1 * 1000;
+                departureTime.setTime(departureTimeInMs);
+                let lahtoaika = departureTime.getHours() - 2 + ":" + departureTime.getMinutes();
+
+
+                const d = document.createElement('div');
+                const h = document.createElement('header');
+
+                h.classList.add("pieniotsikko");
+                d.classList.add("HSL");
+
+                h.innerHTML = lyhytNimi1 + " " + reitti1;
+                d.innerHTML = "SAAPUU: " + saapumisaika + " LÄHTEE: " + lahtoaika + "  REALTIME: " + oikeaAika1;
+
+                h.appendChild(d);
+                hsl.appendChild(h);
+                y++;
+            }
+        }
+    }), 2000);
 
 
 //**********************RUOKALISTAN PÄIVITYS*************************************
@@ -149,6 +185,10 @@ let timer2 = setInterval(() =>
             } catch (err) {
                 console.log(err);
             }
+            const d = document.createElement('div');
+            d.id = "otsikkoSod";
+            d.innerText = "MYYRMÄEN RUOKALISTA";
+            hsl.appendChild(d);
             sodexo.innerText = "MYYRMÄEN RUOKALISTA";
             console.log(sode);
             for (let x = 0; x < 8;) {
@@ -158,7 +198,7 @@ let timer2 = setInterval(() =>
 
                 const d = document.createElement('div');
                 d.classList.add("sodexo");
-                d.innerHTML = hinta + nimi + prop;
+                d.innerHTML = hinta + " " + nimi + " " + prop;
 
                 sodexo.appendChild(d);
                 x++;
